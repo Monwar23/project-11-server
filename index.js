@@ -80,6 +80,27 @@ async function run() {
       res.send(result)
     })
 
+    app.put('/foods/:id', async (req, res) => {
+      const id = req.params.id
+      const filter = { _id: new ObjectId(id) }
+      const options = { upsert: true }
+      const updateFood=req.body
+      const food = {
+        
+        $set: {
+          food_name:updateFood.food_name,
+          food_image:updateFood.food_image,
+          food_category:updateFood.food_category,
+          price:updateFood.price,
+          Quantity:updateFood.Quantity,
+          short_description:updateFood.short_description,
+          food_origin:updateFood.food_origin,
+        
+        },
+      }
+      const result = await foodsCollection.updateOne(filter, food, options)
+      res.send(result)
+    })
 
 
     // Send a ping to confirm a successful connection
