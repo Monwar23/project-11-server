@@ -57,6 +57,21 @@ async function run() {
       const result=await foodsCollection.find(query, options).toArray()
       res.send(result)
     })
+    // get data by email
+
+    app.get("/foods/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = { email: email };
+      const result = await foodsCollection.find(query).toArray();
+      res.send(result);
+  });
+
+    app.post("/addFoods", async (req, res) => {
+      console.log(req.body);
+      const result = await foodsCollection.insertOne(req.body);
+      console.log(result);
+      res.send(result)
+    })
 
 
     // Send a ping to confirm a successful connection
