@@ -40,9 +40,24 @@ async function run() {
     // await client.connect();
 
     app.get('/foods',async(req,res)=>{
+      const search = req.query.search
+      let query = {
+        food_name: { $regex: search, $options: 'i' },
+      }
       const result=await foodsCollection.find().toArray()
       res.send(result)
     })
+
+    app.get('/searchFoods',async(req,res)=>{
+      const search = req.query.search
+      let options = {}
+      let query = {
+        food_name: { $regex: search, $options: 'i' },
+      }
+      const result=await foodsCollection.find(query, options).toArray()
+      res.send(result)
+    })
+
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
