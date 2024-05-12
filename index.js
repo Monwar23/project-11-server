@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 
 require('dotenv').config()
 const app=express()
@@ -59,12 +59,19 @@ async function run() {
     })
     // get data by email
 
-    app.get("/foods/:email", async (req, res) => {
+    app.get("/foods/email/:email", async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
       const result = await foodsCollection.find(query).toArray();
       res.send(result);
   });
+
+  app.get('/foods/:id', async (req, res) => {
+    const id = req.params.id;
+    const query = { _id: new ObjectId(id) }
+    const result = await foodsCollection.findOne(query);
+    res.send(result);
+})
 
     app.post("/addFoods", async (req, res) => {
       console.log(req.body);
@@ -72,6 +79,7 @@ async function run() {
       console.log(result);
       res.send(result)
     })
+
 
 
     // Send a ping to confirm a successful connection
