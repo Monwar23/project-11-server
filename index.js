@@ -39,11 +39,7 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
 
-    app.get('/foods', async (req, res) => {
-      const search = req.query.search
-      let query = {
-        food_name: { $regex: search, $options: 'i' },
-      }
+    app.get('/foods', async (req, res) => {      
       const result = await foodsCollection.find().toArray()
       res.send(result)
     })
@@ -79,21 +75,32 @@ async function run() {
       console.log(result);
       res.send(result)
     })
+
+
     app.post("/purchase", async (req, res) => {
+
+      const purchaseData=req.body
       console.log(req.body);
-      const result = await purchaseCollection.insertOne(req.body);
-      console.log(result);
+      const result = await purchaseCollection.insertOne(purchaseData);
+
+      // const updateDoc={
+      //   $inc:{purchase_count: 1},
+      // }
+      // const foodQuery={_id: new ObjectId(purchaseData.foodId)}
+      // const updatePurchaseCount=await foodsCollection.updateOne(foodQuery,updateDoc)
+
+      // console.log(updatePurchaseCount);
       res.send(result)
     })
 
-    // app.post('/purchase/:id', async (req, res) => {
-    //   const foodId = req.params.id;
-    //   await foodsCollection.updateOne({ _id: new ObjectId(foodId) }, { $inc: { purchase_count: 1 } });
-    //   const purchaseData = req.body;
-    //   const result=await purchaseCollection.insertOne(purchaseData);
-    //   res.send(result)
-    // })
+    app.get('/purchase', async (req, res) => {
+      const result = await purchaseCollection.find().toArray()
+      res.send(result)
+    })
 
+  
+
+    
     app.put('/foods/:id', async (req, res) => {
       const id = req.params.id
       const filter = { _id: new ObjectId(id) }
