@@ -93,13 +93,13 @@ async function run() {
       res.send(result)
     })
 
-    app.get('/purchase', async (req, res) => {
-      const result = await purchaseCollection.find().toArray()
-      res.send(result)
-    })
-
-  
-
+    app.get("/purchase/:email", async (req, res) => {
+      const email = req.params.email;
+      const query = {
+        purchaseEmail: email };
+      const result = await purchaseCollection.find(query).toArray();
+      res.send(result);
+    });
     
     app.put('/foods/:id', async (req, res) => {
       const id = req.params.id
