@@ -36,6 +36,7 @@ async function run() {
 
     const foodsCollection = client.db('FoodItem').collection('AllFood')
     const purchaseCollection = client.db('FoodItem').collection('AllPurchase')
+    const galleryCollection=client.db('FoodItem').collection('AllFeedback')
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
 
@@ -107,6 +108,16 @@ async function run() {
       const result = await purchaseCollection.deleteOne(query)
       res.send(result)
     })
+
+    app.post("/addFeedback", async (req, res) => {
+      
+          const { imageUrl, username, feedback } = req.body;
+          const result = await galleryCollection.insertOne({ imageUrl, username, feedback });
+          res.send(result)
+      }
+  );
+
+    
     
     app.put('/foods/:id', async (req, res) => {
       const id = req.params.id
