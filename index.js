@@ -144,6 +144,10 @@ async function run() {
       const foodQuery={_id: new ObjectId(purchaseData.foodId)}
       const updatePurchaseCount=await foodsCollection.updateOne(foodQuery,updateDoc)
 
+      const decrementDoc = {
+        $inc: { Quantity: purchaseQuantity * -1 }, 
+    };
+    const updateQuantity = await foodsCollection.updateOne(foodQuery, decrementDoc);
       console.log(updatePurchaseCount);
       res.send(result)
     })
@@ -181,7 +185,7 @@ async function run() {
     res.send(result)
   })
     
-    app.put('/foods/:id',verifyToken, async (req, res) => {
+    app.put('/foods/:id', async (req, res) => {
       const id = req.params.id
       const filter = { _id: new ObjectId(id) }
       const options = { upsert: true }
