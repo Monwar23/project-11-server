@@ -19,7 +19,25 @@ const corsOptions = {
 }
 app.use(cors(corsOptions))
 app.use(express.json())
+app.use(cookieParser())
 
+// verify jwt middleware
+const verifyToken = (req, res, next) => {
+  const token = req.cookies?.token
+  if (!token) return res.status(401).send({ message: 'unauthorized access' })
+  if (token) {
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, decoded) => {
+      if (err) {
+        console.log(err)
+        return res.status(401).send({ message: 'unauthorized access' })
+      }
+      console.log(decoded)
+
+      req.user = decoded
+      next()
+    })
+  }
+}
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.as3doaz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
@@ -86,8 +104,12 @@ async function run() {
     })
     // get data by email
 
-    app.get("/foods/email/:email", async (req, res) => {
+    app.get("/foods/email/:email", verifyToken, async (req, res) => {
+      const tokenEmail = req.user.email
       const email = req.params.email;
+      if (tokenEmail !== email) {
+        return res.status(403).send({ message: 'forbidden access' })
+      }
       const query = { email: email };
       const result = await foodsCollection.find(query).toArray();
       res.send(result);
@@ -114,18 +136,25 @@ async function run() {
       console.log(req.body);
       const result = await purchaseCollection.insertOne(purchaseData);
 
-      // const updateDoc={
-      //   $inc:{purchase_count: 1},
-      // }
-      // const foodQuery={_id: new ObjectId(purchaseData.foodId)}
-      // const updatePurchaseCount=await foodsCollection.updateOne(foodQuery,updateDoc)
+      const purchaseQuantity=purchaseData.purchaseQuantity
 
-      // console.log(updatePurchaseCount);
+      const updateDoc={
+        $inc:{purchase_count: purchaseQuantity},
+      }
+      const foodQuery={_id: new ObjectId(purchaseData.foodId)}
+      const updatePurchaseCount=await foodsCollection.updateOne(foodQuery,updateDoc)
+
+      console.log(updatePurchaseCount);
       res.send(result)
     })
 
-    app.get("/purchase/:email", async (req, res) => {
+    app.get("/purchase/:email",verifyToken, async (req, res) => {
+      const tokenEmail = req.user.email
       const email = req.params.email;
+      if (tokenEmail !== email) {
+        return res.status(403).send({ message: 'forbidden access' })
+      }
+
       const query = {
         purchaseEmail: email };
       const result = await purchaseCollection.find(query).toArray();
@@ -152,7 +181,7 @@ async function run() {
     res.send(result)
   })
     
-    app.put('/foods/:id', async (req, res) => {
+    app.put('/foods/:id',verifyToken, async (req, res) => {
       const id = req.params.id
       const filter = { _id: new ObjectId(id) }
       const options = { upsert: true }
