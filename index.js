@@ -1,7 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
-
+const jwt=require('jsonwebtoken')
+const cookieParser = require('cookie-parser')
 require('dotenv').config()
 const app = express()
 const port = process.env.PORT || 5000
@@ -39,6 +40,35 @@ async function run() {
     const galleryCollection=client.db('FoodItem').collection('AllFeedback')
     // Connect the client to the server	(optional starting in v4.7)
     // await client.connect();
+
+
+    // jwt generate
+    app.post('/jwt', async (req, res) => {
+      const email = req.body
+      const token = jwt.sign(email, process.env.ACCESS_TOKEN_SECRET, {
+        expiresIn: '7d',
+      })
+      res.cookie('token', token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+        })
+        .send({ success: true })
+    }
+  )
+
+    // Clear token on logout
+    // app.get('/logout', (req, res) => {
+    //   res
+    //     .clearCookie('token', {
+    //       httpOnly: true,
+    //       secure: process.env.NODE_ENV === 'production',
+    //       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
+    //       maxAge: 0,
+    //     })
+    //     .send({ success: true })
+    // })
+
 
     app.get('/foods', async (req, res) => {      
       const result = await foodsCollection.find().toArray()
@@ -117,7 +147,10 @@ async function run() {
       }
   );
 
-    
+  app.get('/feedback', async (req, res) => {      
+    const result = await galleryCollection.find().toArray()
+    res.send(result)
+  })
     
     app.put('/foods/:id', async (req, res) => {
       const id = req.params.id
