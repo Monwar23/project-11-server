@@ -87,7 +87,7 @@ async function run() {
         })
         .send({ success: true })
     })
-
+    
 
     app.get('/foods', async (req, res) => {      
       const result = await foodsCollection.find().toArray()
