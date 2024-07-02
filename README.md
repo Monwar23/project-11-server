@@ -12,7 +12,7 @@ DineDash is an innovative online food ordering platform designed to offer a seam
 - npm install
 - create .env file
 - update .env to : 
- - DB_USER=Your Mongodb user
- - DB_PASS=Your Mongodb password
- - ACCESS_TOKEN_SECRET=Your token
+  - DB_USER=Your Mongodb user
+  - DB_PASS=Your Mongodb password
+  - ACCESS_TOKEN_SECRET=Your token
 - nodemon index.js and run this
